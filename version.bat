@@ -26,6 +26,6 @@ if %size% NEQ 0 exit
 :: if not changed yet: increment minor version
 set /p var=<%header%
 set /a var=%var:~22%+1
-echo #define VERSION_MINOR %var%>%header%
-echo #define VERSION_MAJOR %major%>>%header%
+echo #define VERSION_MINOR %var% >%header%
+echo #define VERSION_MAJOR %major% >>%header%
 echo #define VERSION_DATE "%date:~4,10%">>%header%

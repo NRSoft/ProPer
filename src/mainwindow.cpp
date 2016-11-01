@@ -24,10 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _userLogger->debug("creating main window");
 
     ui->setupUi(this);
-
-    QString title = QLatin1String("ProPer Project Management ver ") + QString::number(VERSION_MAJOR) +\
-                    QStringLiteral(".") + QString::number(VERSION_MINOR);
-    setWindowTitle(title);
+    setWindowTitle(QLatin1String("ProPer project management"));
 
     QComboBox* combo = new QComboBox(ui->mainToolBar);
     ui->mainToolBar->addWidget(combo);
@@ -285,6 +282,15 @@ void MainWindow::on_remoteFileUploaded()
     _mainLogger->info("uploaded data to the remote file \"{}\"",
                       _remote_file.getUrlPath().toStdString());
     QApplication::restoreOverrideCursor();
+}
+
+
+void MainWindow::on_actionAbout_triggered()
+{
+    QString text(" ProPer v ");
+    text += QString::number(VERSION_MAJOR) + QStringLiteral(".") + QString::number(VERSION_MINOR);
+    text += QStringLiteral("  (C) NRSoft 2016\nhttps://github.com/NRSoft/ProPer");
+    QMessageBox::about(this, QLatin1String("About"), text);
 }
 
 
