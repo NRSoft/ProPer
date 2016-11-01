@@ -26,8 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     QString title = QLatin1String("ProPer Project Management ver ") + QString::number(VERSION_MAJOR) +\
-                    QStringLiteral(".") + QString::number(VERSION_MINOR) +\
-                    QStringLiteral(".") + QString::number(VERSION_BUILD);
+                    QStringLiteral(".") + QString::number(VERSION_MINOR);
     setWindowTitle(title);
 
     QComboBox* combo = new QComboBox(ui->mainToolBar);

@@ -1,5 +1,3 @@
-//210 
-#define VERSION_MAJOR 0 
-#define VERSION_MINOR 2 
-#define VERSION_BUILD 210 
-#define VERSION_DATE "30/10/2016" 
+#define VERSION_MINOR 3
+#define VERSION_MAJOR 0
+#define VERSION_DATE "01/11/2016"

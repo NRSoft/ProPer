@@ -24,8 +24,7 @@ void MainWindow::_saveToByteArray(QByteArray* data)
     xmlWriter.writeStartDocument();
     xmlWriter.writeStartElement("ProPer");
     xmlWriter.writeAttribute(QStringLiteral("version"), QString::number(VERSION_MAJOR) +\
-                             QStringLiteral(".") + QString::number(VERSION_MINOR) +\
-                             QStringLiteral(".") + QString::number(VERSION_BUILD));
+                             QStringLiteral(".") + QString::number(VERSION_MINOR));
     xmlWriter.writeStartElement("projects");
     for (int i = 0; i < ui->projectTree->topLevelItemCount(); ++i){
         Task* item = dynamic_cast<Task*>(ui->projectTree->topLevelItem(i));
