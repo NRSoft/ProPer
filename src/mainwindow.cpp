@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _userLogger->debug("creating main window");
 
     ui->setupUi(this);
-    setWindowTitle(QLatin1String("ProPer project management"));
+    setWindowTitle(QLatin1String("ProPer Project Management"));
 
     QComboBox* combo = new QComboBox(ui->mainToolBar);
     ui->mainToolBar->addWidget(combo);
