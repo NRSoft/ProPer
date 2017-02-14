@@ -79,14 +79,14 @@ void CategoryDialog::on_addButton_clicked()
     ui->categoryCombo->addItem(category);
     ui->categoryCombo->model()->sort(0); // alphabetically
     _taskCount(category);
-    _logger->debug("category \"{}\" added", category.toStdString());
+    _logger->debug("category \"{}\" added", category.toUtf8().data());
 }
 
 
 ///////  d e l e t e  B u t t o n :  c l i c k e d  //////
 void CategoryDialog::on_deleteButton_clicked()
 {
-    _logger->debug("category \"{}\" to be deleted", ui->categoryCombo->currentText().toStdString());
+    _logger->debug("category \"{}\" to be deleted", ui->categoryCombo->currentText().toUtf8().data());
     _localCategories.remove(ui->categoryCombo->currentText());
     ui->categoryCombo->removeItem(ui->categoryCombo->currentIndex());
 }

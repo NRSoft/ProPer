@@ -12,7 +12,7 @@ RemoteFile::RemoteFile(QObject *parent) : QObject(parent)
 ///////  s e t  U r l  ///////
 void RemoteFile::setUrl(const QString& path, const QString& username, const QString& password)
 {
-    _logger->debug("setting remote file URL to \"{}\"", path.toStdString());
+    _logger->debug("setting remote file URL to \"{}\"", path.toUtf8().data());
 
     _url_path = path;
     _user_name = username;
@@ -46,7 +46,7 @@ void RemoteFile::downloadFinished(QNetworkReply *reply)
 {
     if(reply->error()){
         _data.clear();
-        _logger->error("download failed: {}", reply->errorString().toStdString());
+        _logger->error("download failed: {}", reply->errorString().toUtf8().data());
     }
     else{
         _data = reply->readAll();
@@ -77,7 +77,7 @@ void RemoteFile::upload(const QByteArray& data)
 void RemoteFile::uploadFinished(QNetworkReply *reply)
 {
     if(reply->error())
-        _logger->error("upload failed: {}", reply->errorString().toStdString());
+        _logger->error("upload failed: {}", reply->errorString().toUtf8().data());
     else
         _logger->debug("upload succeeded");
 
@@ -89,7 +89,7 @@ void RemoteFile::uploadFinished(QNetworkReply *reply)
 //{
 //#ifndef QT_NO_SSL
 //    foreach (const QSslError &error, sslErrors)
-//        _logger->error(SSL error: {}", error.errorString().toStdString());
+//        _logger->error(SSL error: {}", error.errorString().toUtf8().data());
 //#else
 //    Q_UNUSED(sslErrors);
 //#endif

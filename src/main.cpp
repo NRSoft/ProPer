@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
             QString timestamp = QDate::currentDate().toString(QLatin1String("ddd dd MMM yyyy"));
             mainLogger->info("---- [{}] starting ProPer ver {}.{} built on {} ----",
-                             timestamp.toStdString(), VERSION_MAJOR, VERSION_MINOR, VERSION_DATE);
+                             timestamp.toUtf8().data(), VERSION_MAJOR, VERSION_MINOR, VERSION_DATE);
 
             // set logging level from command line parameter (number from 0 to 6,
             //  defined in spdlog/common.h: trace=0, debug=1, info=2, warning=3, error=4, critical=5, off=6)

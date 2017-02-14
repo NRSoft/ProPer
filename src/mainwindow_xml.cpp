@@ -69,17 +69,22 @@ void MainWindow::_loadFromByteArray(const QByteArray& data)
 
 
 ///////  s a v e  T o  L o c a l  X m l  ////////
-bool MainWindow::_saveToLocalXml(const QString* filename)
+bool MainWindow::_saveToLocalXml(QString& filename)
 {
-    QString name = (filename)? *filename: QFileDialog::getSaveFileName(this,
-                                          QLatin1String("Save Projects"), "", QLatin1String("Project Files (*.xml)"));
-    if(name.isEmpty()) return false;
+    if(filename.isEmpty())
+    {
+        QString name = QFileDialog::getSaveFileName(this,
+                                    QLatin1String("Save Projects"), ".",
+                                    QLatin1String("Project Files (*.xml)"));
+        if(name.isEmpty()) return false;
+        filename = name;
+    }
 
-    _mainLogger->info("saving data to \"{}\"", name.toStdString());
+    _mainLogger->info("saving data to \"{}\"", filename.toUtf8().data());
 
-    QFile file(name);
+    QFile file(filename);
     if(!file.open(QFile::WriteOnly | QFile::Text)){
-        _mainLogger->error("cannot open file \"{}\"", name.toStdString());
+        _mainLogger->error("cannot open file \"{}\"", filename.toUtf8().data());
         return false;
     }
 
@@ -89,26 +94,31 @@ bool MainWindow::_saveToLocalXml(const QString* filename)
 
     file.close();
     if(file.error()){
-        _mainLogger->error("cannot write to file \"{}\"", name.toStdString());
+        _mainLogger->error("cannot write to file \"{}\"", filename.toUtf8().data());
         return false;
     }
-    _localFileName = name;
+
     return true;
 }
 
 
 ///////  l o a d  F r o m  L o c a l  X m l  //////
-bool MainWindow::_loadFromLocalXml(const QString* filename)
+bool MainWindow::_loadFromLocalXml(QString& filename)
 {
-    QString name = (filename)? *filename: QFileDialog::getOpenFileName(this,
-                                          QLatin1String("Open Project File"), ".", QLatin1String("Project Files (*.xml)"));
-    if(name.isEmpty()) return false;
+    if(filename.isEmpty())
+    {
+        QString name = QFileDialog::getOpenFileName(this,
+                                    QLatin1String("Open Project File"), ".",
+                                    QLatin1String("Project Files (*.xml)"));
+        if(name.isEmpty()) return false;
+        filename = name;
+    }
 
-    _mainLogger->info("loading data from \"{}\"", name.toStdString());
+    _mainLogger->info("loading data from \"{}\"", filename.toUtf8().data());
 
-    QFile file(name);
+    QFile file(filename);
     if(!file.open(QFile::ReadOnly | QFile::Text)){
-        _mainLogger->error("cannot open file \"{}\"", name.toStdString());
+        _mainLogger->error("cannot open file \"{%s}}\"", filename.toUtf8().data());
         return false;
     }
 
@@ -116,10 +126,12 @@ bool MainWindow::_loadFromLocalXml(const QString* filename)
 
     file.close();
     if(file.error()){
-        _mainLogger->error("cannot read file \"{}\"", name.toStdString());
+        _mainLogger->error("cannot read file \"{}\"", filename.toUtf8().data());
         return false;
     }
-    _localFileName = name;
+
+    _mainLogger->info("finished loading data from \"{}\"", filename.toUtf8().data());
+
     return true;
 }
 
@@ -132,7 +144,7 @@ void MainWindow::_saveToRemoteXml()
     if(dialog.exec()){
         QApplication::setOverrideCursor(Qt::WaitCursor);
         dialog.wrtieConfigTo(_remote_file);
-        _mainLogger->debug("uploading to the remote file \"{}\"", _remote_file.getUrlPath().toStdString());
+        _mainLogger->debug("uploading to the remote file \"{}\"", _remote_file.getUrlPath().toUtf8().data());
         QByteArray data;
         _saveToByteArray(&data);
         _remote_file.upload(data);
@@ -148,7 +160,7 @@ void MainWindow::_loadFromRemoteXml()
     if(dialog.exec()){
         QApplication::setOverrideCursor(Qt::WaitCursor);
         dialog.wrtieConfigTo(_remote_file);
-        _mainLogger->debug("downloading from the remote file \"{}\"", _remote_file.getUrlPath().toStdString());
+        _mainLogger->debug("downloading from the remote file \"{}\"", _remote_file.getUrlPath().toUtf8().data());
         _remote_file.download();
     }
 }

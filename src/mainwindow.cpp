@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _loadSettings();
 
     if(!_localFileName.isEmpty())
-        _loadFromLocalXml(&_localFileName);
+        _loadFromLocalXml(_localFileName);
 
     connect(&_remote_file, SIGNAL(fileDownloaded()), this, SLOT(on_remoteFileDownloaded()));
     connect(&_remote_file, SIGNAL(fileUploaded()), this, SLOT(on_remoteFileUploaded()));
@@ -74,7 +74,7 @@ MainWindow::~MainWindow()
         QString message = QLatin1String("Tasks have been modified, save?");
         reply = QMessageBox::question(this, QLatin1String("Data Update"), message, QMessageBox::Yes|QMessageBox::No);
         if(reply == QMessageBox::Yes)
-            _saveToLocalXml(&_localFileName);
+            _saveToLocalXml(_localFileName);
     }
 
     _saveSettings();
@@ -102,7 +102,9 @@ void MainWindow::on_actionNewProject_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
     _userLogger->debug("command: open data file");
-    _loadFromLocalXml();
+    QString name;
+    if(_loadFromLocalXml(name))
+        _localFileName = name;
     TaskBubble::setDistanceOrigin(0);
     _pipe->build(ui->projectTree);
 }
@@ -110,13 +112,15 @@ void MainWindow::on_actionOpen_triggered()
 void MainWindow::on_actionSave_triggered()
 {
     _userLogger->debug("command: save data file");
-    _saveToLocalXml(&_localFileName);
+    _saveToLocalXml(_localFileName);
 }
 
 void MainWindow::on_actionSave_As_triggered()
 {
     _userLogger->debug("command: save data file as");
-    _saveToLocalXml();
+    QString name;
+    if(_saveToLocalXml(name))
+        _localFileName = name;
 }
 
 void MainWindow::on_actionOpen_Remote_triggered()
@@ -210,7 +214,7 @@ void MainWindow::on_newTask()
     task->setText(0, QLatin1String("[editing...]"));
 
     if(task->runEditor()){
-        _taskLogger->debug("new task \"{}\"", task->name().toStdString());
+        _taskLogger->debug("new task \"{}\"", task->name().toUtf8().data());
         _pipe->build(ui->projectTree);
     }
     else{ // if cancelled remove newly added item
@@ -229,7 +233,7 @@ void MainWindow::on_editTask()
     if(task == nullptr) return;
 
     if(task->runEditor()){
-        _taskLogger->debug("updated task \"{}\"", task->name().toStdString());
+        _taskLogger->debug("updated task \"{}\"", task->name().toUtf8().data());
         _pipe->build(ui->projectTree);
     }
 }
@@ -238,7 +242,7 @@ void MainWindow::on_editTask()
 void MainWindow::on_completeTask()
 {
     Task* task = dynamic_cast<Task*>(ui->projectTree->currentItem());
-    _taskLogger->debug("completed task \"{}\"", task->name().toStdString());
+    _taskLogger->debug("completed task \"{}\"", task->name().toUtf8().data());
     task->setStatus(Task::DONE);
     task->hideCompleted();
     Task::setModified(true);
@@ -254,7 +258,7 @@ void MainWindow::on_deleteTask()
                                                +  task->text(0) + QStringLiteral("\"?");
     QMessageBox::StandardButton reply = QMessageBox::question(this, QLatin1String("Delete"), message, QMessageBox::Yes|QMessageBox::No);
     if(reply == QMessageBox::Yes){
-        _taskLogger->debug("deleting task \"{}\"", task->name().toStdString());
+        _taskLogger->debug("deleting task \"{}\"", task->name().toUtf8().data());
         Task* p = dynamic_cast<Task*>(task->parent());
         if(p)
             p->takeChild(p->indexOfChild(task));
@@ -271,7 +275,7 @@ void MainWindow::on_remoteFileDownloaded()
     QApplication::restoreOverrideCursor();
     const QByteArray& data = _remote_file.getData();
     _mainLogger->info("downloaded data from the remote file \"{}\", total size = {}",
-                      _remote_file.getUrlPath().toStdString(), data.size());
+                      _remote_file.getUrlPath().toUtf8().data(), data.size());
     if(!data.isEmpty())
         _loadFromByteArray(data);
 }
@@ -280,7 +284,7 @@ void MainWindow::on_remoteFileDownloaded()
 void MainWindow::on_remoteFileUploaded()
 {
     _mainLogger->info("uploaded data to the remote file \"{}\"",
-                      _remote_file.getUrlPath().toStdString());
+                      _remote_file.getUrlPath().toUtf8().data());
     QApplication::restoreOverrideCursor();
 }
 
@@ -296,7 +300,7 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::_saveSettings()
 {
-    _mainLogger->info("saving settings to \"{}\"", _settingsFile.toStdString());
+    _mainLogger->info("saving settings to \"{}\"", _settingsFile.toUtf8().data());
     QSettings settings(_settingsFile, QSettings::IniFormat);
     settings.setValue(QLatin1String("project_file"), _localFileName);
     settings.setValue(QLatin1String("remote_file"), _remote_file.getUrlPath());
@@ -306,7 +310,7 @@ void MainWindow::_saveSettings()
 
 void MainWindow::_loadSettings()
 {
-    _mainLogger->info("loading settings from \"{}\"", _settingsFile.toStdString());
+    _mainLogger->info("loading settings from \"{}\"", _settingsFile.toUtf8().data());
     QSettings settings(_settingsFile, QSettings::IniFormat);
     _localFileName = settings.value(QLatin1String("project_file")).toString();
     _remote_file.setUrl(settings.value(QLatin1String("remote_file")).toString(),

@@ -136,7 +136,7 @@ void TaskDialog::on_buttonBox_accepted()
     _task.assignCategory(ui->categoriesCombo->currentText());
    //TODO: check parent deadlines, warn the user and adjust them accordingly
     _task.setDeadline(ui->deadlineDate->date());
-    _logger->debug("Task \"{}\" accepted", _task.name().toStdString());
+    _logger->debug("Task \"{}\" accepted", _task.name().toUtf8().data());
 }
 
 

@@ -26,8 +26,8 @@ public:
 private:
     void _saveToByteArray(QByteArray* data);
     void _loadFromByteArray(const QByteArray& data);
-    bool _saveToLocalXml(const QString* filename = nullptr);
-    bool _loadFromLocalXml(const QString* filename = nullptr);
+    bool _saveToLocalXml(QString& filename);
+    bool _loadFromLocalXml(QString& filename);
     void _saveToRemoteXml();
     void _loadFromRemoteXml();
     void _saveSettings();
