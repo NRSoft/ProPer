@@ -37,7 +37,8 @@ HEADERS  += mainwindow.h \
     taskpipe.h \
     taskbubble.h \
     taskpipeview.h \
-    categorydialog.h
+    categorydialog.h \
+    projectheaderview.h
 
 FORMS    += mainwindow.ui \
     taskdialog.ui \

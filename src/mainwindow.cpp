@@ -52,13 +52,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->projectTree->setSortingEnabled(false);
     ui->projectTree->setColumnCount(1);
-    ui->projectTree->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->projectTree->setHeaderLabel("Projects");
+
+    _header = new ProjectHeaderView(ui->projectTree);
+    ui->projectTree->setHeader(_header);
+    ui->projectTree->header()->setSectionsClickable(true);
 
     ui->projectTree->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->projectTree->setDragEnabled(true);
     ui->projectTree->viewport()->setAcceptDrops(true);
     ui->projectTree->setDropIndicatorShown(true);
     ui->projectTree->setDragDropMode(QAbstractItemView::InternalMove);
+
+    ui->projectTree->setContextMenuPolicy(Qt::CustomContextMenu);
 
     _pipe = new TaskPipe(this);
     ui->graphicsView->setScene(_pipe);
@@ -201,27 +207,22 @@ void MainWindow::on_projectTree_customContextMenuRequested(const QPoint &pos)
 void MainWindow::on_newTask()
 {
     _userLogger->debug("command: new task");
-    QTreeWidget* tree = ui->projectTree;
-
-    Task* task = new Task();
     Task* parent = dynamic_cast<Task*>(ui->projectTree->currentItem());
 
-    // add item assuming normal operation
-    if(parent)
-        parent->addChild(task);
-    else
-        tree->addTopLevelItem(task);
-    task->setText(0, QLatin1String("[editing...]"));
-
-    if(task->runEditor()){
-        _taskLogger->debug("new task \"{}\"", task->name().toUtf8().data());
-        _pipe->build(ui->projectTree);
+    if(!parent){ // top-level project, reuse the code
+        ProjectHeaderView* header = static_cast<ProjectHeaderView*>(ui->projectTree->header());
+        header->on_newProject();
     }
-    else{ // if cancelled remove newly added item
-        if(parent)
+    else{ // task under selected one
+        Task* task = new Task();
+        parent->addChild(task);
+        task->setText(0, QLatin1String("[editing...]"));
+        if(task->runEditor()){
+            _taskLogger->debug("new task \"{}\"", task->name().toUtf8().data());
+            _pipe->build(ui->projectTree);
+        }
+        else // if cancelled remove newly added item
             parent->takeChild(parent->indexOfChild(task));
-        else
-            tree->takeTopLevelItem(tree->indexOfTopLevelItem(task));
     }
 }
 

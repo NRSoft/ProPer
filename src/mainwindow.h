@@ -8,12 +8,14 @@
 
 #include "spdlog/spdlog.h"
 
+#include "projectheaderview.h"
 #include "remotefile.h"
 #include "taskpipe.h"
 
 namespace Ui {
 class MainWindow;
 }
+
 
 class MainWindow : public QMainWindow
 {
@@ -69,6 +71,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    ProjectHeaderView* _header;
 
     TaskPipe* _pipe;
 

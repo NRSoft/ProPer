@@ -1,3 +1,3 @@
-#define VERSION_MINOR 7 
+#define VERSION_MINOR 8 
 #define VERSION_MAJOR 0 
-#define VERSION_DATE "14/02/2017"
+#define VERSION_DATE "16/02/2017"
