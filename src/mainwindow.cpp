@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->projectTree->setHeaderLabel("Projects");
 
     _header = new ProjectHeaderView(ui->projectTree);
+    _header->setHistoryList(ui->listWidget);
     ui->projectTree->setHeader(_header);
     ui->projectTree->header()->setSectionsClickable(true);
 
@@ -218,8 +219,9 @@ void MainWindow::on_newTask()
         parent->addChild(task);
         task->setText(0, QLatin1String("[editing...]"));
         if(task->runEditor()){
-            _taskLogger->debug("new task \"{}\"", task->name().toUtf8().data());
             _pipe->build(ui->projectTree);
+            _taskLogger->debug("new task \"{}\"", task->name().toUtf8().data());
+            ui->listWidget->insertItem(0, task->fullPrefix() + QStringLiteral(" was created"));
         }
         else // if cancelled remove newly added item
             parent->takeChild(parent->indexOfChild(task));
@@ -232,8 +234,14 @@ void MainWindow::on_editTask()
     _userLogger->debug("command: edit task");
     Task* task = dynamic_cast<Task*>(ui->projectTree->currentItem());
     if(task == nullptr) return;
+    QString originalName = task->name();
 
     if(task->runEditor()){
+        if(task->name() != originalName)
+            ui->listWidget->insertItem(0, task->fullPrefix(false) + originalName +
+                    QStringLiteral("\" was renamed to \"") + task->name() + QStringLiteral("\""));
+        else
+            ui->listWidget->insertItem(0, task->fullPrefix() + QStringLiteral(" was updated"));
         _taskLogger->debug("updated task \"{}\"", task->name().toUtf8().data());
         _pipe->build(ui->projectTree);
     }
@@ -243,9 +251,10 @@ void MainWindow::on_editTask()
 void MainWindow::on_completeTask()
 {
     Task* task = dynamic_cast<Task*>(ui->projectTree->currentItem());
-    _taskLogger->debug("completed task \"{}\"", task->name().toUtf8().data());
     task->setStatus(Task::DONE);
     task->hideCompleted();
+    ui->listWidget->insertItem(0, task->fullPrefix() + QStringLiteral(" was completed"));
+    _taskLogger->debug("completed task \"{}\"", task->name().toUtf8().data());
     Task::setModified(true);
 }
 
@@ -259,6 +268,7 @@ void MainWindow::on_deleteTask()
                                                +  task->text(0) + QStringLiteral("\"?");
     QMessageBox::StandardButton reply = QMessageBox::question(this, QLatin1String("Delete"), message, QMessageBox::Yes|QMessageBox::No);
     if(reply == QMessageBox::Yes){
+        ui->listWidget->insertItem(0, task->fullPrefix() + QStringLiteral(" was deleted"));
         _taskLogger->debug("deleting task \"{}\"", task->name().toUtf8().data());
         Task* p = dynamic_cast<Task*>(task->parent());
         if(p)
@@ -275,7 +285,7 @@ void MainWindow::on_remoteFileDownloaded()
 {
     QApplication::restoreOverrideCursor();
     const QByteArray& data = _remote_file.getData();
-    _mainLogger->info("downloaded data from the remote file \"{}\", total size = {}",
+    _mainLogger->info("downloaded project tree from remote file \"{0}\", total size = {1}",
                       _remote_file.getUrlPath().toUtf8().data(), data.size());
     if(!data.isEmpty())
         _loadFromByteArray(data);
@@ -284,7 +294,7 @@ void MainWindow::on_remoteFileDownloaded()
 
 void MainWindow::on_remoteFileUploaded()
 {
-    _mainLogger->info("uploaded data to the remote file \"{}\"",
+    _mainLogger->info("uploaded project tree to remote file \"{}\"",
                       _remote_file.getUrlPath().toUtf8().data());
     QApplication::restoreOverrideCursor();
 }

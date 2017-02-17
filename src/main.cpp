@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
             taskLogger->flush_on(spdlog::level::err);
     //        plotLogger->flush_on(spdlog::level::err);
 
-            spdlog::set_pattern("[%H:%M:%S.%e][%n] %L: %v");
+            spdlog::set_pattern("[%H:%M:%S.%e][%n]%L: %v");
 
             QString timestamp = QDate::currentDate().toString(QLatin1String("ddd dd MMM yyyy"));
             mainLogger->info("---- [{}] starting ProPer ver {}.{} built on {} ----",

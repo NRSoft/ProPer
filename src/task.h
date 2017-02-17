@@ -62,7 +62,7 @@ public:
 
     double priority();
 
-    inline const int noteCount() const {return _notes.size();}
+    inline int noteCount() const {return _notes.size();}
     inline void appendNote(const Note& note) {_notes.push_back(note);}
     inline void updateNote(int pos, const Note& note) {_notes[pos] = note;}
     inline void deleteNote(int pos) {if(0<=pos && pos<_notes.size()) _notes.removeAt(pos);}
@@ -92,6 +92,14 @@ public:
 
     const QString statusString() const;
     void assignStatus(const QString status);
+
+    inline const QString fullPrefix(bool appendName=true) const
+    {
+        return QDateTime::currentDateTime().toString("[d MMM HH:mm] ") +
+                (isProject()? QStringLiteral("Project \""):
+                (isTask()?    QStringLiteral("Task \""): QStringLiteral("Component \""))) +
+                (appendName?  _name + QStringLiteral("\""): QLatin1String(""));
+    }
 
 private:
 

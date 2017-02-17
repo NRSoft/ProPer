@@ -32,6 +32,10 @@ void MainWindow::_saveToByteArray(QByteArray* data)
     }
     xmlWriter.writeEndElement(); // projects
     Task::saveCategoriesToXml(xmlWriter);
+    xmlWriter.writeStartElement("history");
+    for (int i = 0; i < ui->listWidget->count(); ++i)
+        xmlWriter.writeTextElement("record", ui->listWidget->item(i)->text());
+    xmlWriter.writeEndElement(); // history
     xmlWriter.writeEndElement(); // ProPer
     xmlWriter.writeEndDocument();
     Task::setModified(false);
@@ -59,10 +63,24 @@ void MainWindow::_loadFromByteArray(const QByteArray& data)
                 item->loadFromXml(xmlReader);
                 ui->projectTree->addTopLevelItem(item);
             }
-            else if(xmlReader.name() == QLatin1String("categories"))
+            else if(xmlReader.name() == QLatin1String("categories")){
                 if(!Task::loadCategoriesFromXml(xmlReader))
                     _mainLogger->error("cannot read XML file");
-
+            }
+            else if(xmlReader.name() == QLatin1String("history")){
+                ui->listWidget->clear();
+                for(;;){
+                    xmlReader.readNext();
+                    if(xmlReader.isStartElement()){
+                        if(xmlReader.name() == QLatin1String("record"))
+                            ui->listWidget->addItem(xmlReader.readElementText());
+                    }
+                    else if(xmlReader.isEndElement()){
+                        if(xmlReader.name() == QLatin1String("history"))
+                            break;
+                    }
+                }
+            } // "history"
         }
     }
 }
